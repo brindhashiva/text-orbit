@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Orbit</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --bg:        #07070f;
+      --surface:   #0e0e1c;
+      --border:    #1c1c32;
+      --border-hi: #7c3aed;
+      --accent:    #7c3aed;
+      --accent2:   #4f46e5;
+      --accent3:   #0ea5e9;
+      --text:      #e2e2f0;
+      --muted:     #6b7280;
+      --subtle:    #374151;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 52px 16px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 44px;
+    }
+    .logo-mark {
+      width: 52px; height: 52px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 32px #7c3aed44;
+    }
+    .logo-mark svg { width: 28px; height: 28px; fill: none; stroke: #fff; stroke-width: 1.8; }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #c084fc 0%, #818cf8 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 740px;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 48px #00000044;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* ── Textarea ── */
+    .textarea-wrap { position: relative; }
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.97rem;
+      padding: 14px 16px 32px;
+      resize: none;
+      height: 130px;
+      outline: none;
+      line-height: 1.65;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea::placeholder { color: var(--subtle); }
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px #7c3aed1a;
+    }
+    .char-count {
+      position: absolute;
+      bottom: 10px; right: 14px;
+      font-size: 0.7rem;
+      color: var(--subtle);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── Tone ── */
+    .tone-row { display: flex; gap: 10px; }
+    .tone-btn {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s;
+    }
+    .tone-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+    .tone-btn:hover { border-color: #7c3aed55; color: #a78bfa; }
+    .tone-btn.active {
+      border-color: var(--accent);
+      background: #1a0a38;
+      color: #c084fc;
+      font-weight: 600;
+      box-shadow: 0 0 16px #7c3aed1a;
+    }
+
+    /* ── Language pills ── */
+    .lang-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .lang-actions { display: flex; gap: 6px; }
+    .link-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .link-btn:hover { border-color: var(--accent); color: #a78bfa; }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 560px) { .lang-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .lang-pill {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .lang-pill:hover { border-color: #7c3aed44; }
+    .lang-pill.active {
+      border-color: var(--accent);
+      background: #12082a;
+      box-shadow: 0 0 10px #7c3aed18;
+    }
+    .lang-pill input { display: none; }
+    .pill-box {
+      width: 16px; height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid var(--subtle);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .lang-pill.active .pill-box {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .pill-box svg {
+      width: 10px; height: 10px;
+      stroke: #fff; fill: none; stroke-width: 2.5;
+      display: none;
+    }
+    .lang-pill.active .pill-box svg { display: block; }
+    .pill-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .lang-pill.active .pill-name { color: #c084fc; }
+
+    /* ── Translate button ── */
+    .translate-btn {
+      width: 100%;
+      margin-top: 28px;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5, #0ea5e9);
+      background-size: 200%;
+      animation: gradShift 5s ease infinite;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: 0.02em;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .translate-btn svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; }
+    @keyframes gradShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .translate-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .translate-btn:active:not(:disabled) { transform: translateY(0); }
+    .translate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid #ffffff44;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      margin-top: 14px;
+      padding: 11px 16px;
+      background: #1f0808;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      color: #fca5a5;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    /* ── Results ── */
+    .results-wrap { width: 100%; max-width: 740px; }
+    .results-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--subtle);
+      margin-bottom: 14px;
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 520px) { .results-grid { grid-template-columns: 1fr; } }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 0.35s ease forwards;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .result-card:hover {
+      border-color: #7c3aed33;
+      box-shadow: 0 4px 20px #7c3aed0e;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .result-lang-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #a78bfa;
+    }
+    .result-btns { display: flex; gap: 6px; }
+    .icon-btn {
+      background: #13132a;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--muted);
+      padding: 5px 8px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .icon-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .icon-btn:hover { background: #1e1e38; color: var(--text); border-color: #7c3aed55; }
+    .icon-btn.speaking { background: #2d1060; border-color: var(--accent); color: #c084fc; }
+    .icon-btn.copied   { background: #0a2a1a; border-color: #16a34a; color: #4ade80; }
+
+    .result-text {
+      font-size: 0.93rem;
+      color: #d1d5db;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <ellipse cx="12" cy="12" rx="4" ry="9"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+      </svg>
+    </div>
+    <h1>Text Orbit</h1>
+    <p>AI-powered multilingual translation in seconds</p>
+  </header>
+
+  <div class="card">
+
+    <label class="field-label">Input Text</label>
+    <div class="textarea-wrap">
+      <textarea id="inputText" placeholder="Enter text to translate..." oninput="updateCount()"></textarea>
+      <span class="char-count" id="charCount">0</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <label class="field-label">Tone</label>
+    <div class="tone-row">
+      <button class="tone-btn active" data-tone="formal" onclick="setTone(this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><path d="M8 7V5a2 2 0 0 0-4 0v2"/>
+        </svg>
+        Formal
+      </button>
+      <button class="tone-btn" data-tone="casual" onclick="setTone(this)">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Casual
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="lang-header">
+      <label class="field-label" style="margin:0;">Languages</label>
+      <div class="lang-actions">
+        <button class="link-btn" onclick="selectAll()">Select All</button>
+        <button class="link-btn" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+    <div class="lang-grid" id="langGrid"></div>
+
+    <button class="translate-btn" id="translateBtn" onclick="doTranslate()">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/>
+        <path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/>
+      </svg>
+      <span id="btnText">Translate</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div class="results-wrap" id="resultsWrap" style="display:none;">
+    <div class="results-label">Results</div>
+    <div class="results-grid" id="results"></div>
+  </div>
+
+  <script>
+    const LANGUAGES = [
+      { key: "Tamil",     code: "ta-IN" },
+      { key: "English",   code: "en-US" },
+      { key: "Kannada",   code: "kn-IN" },
+      { key: "Malayalam", code: "ml-IN" },
+      { key: "Arabic",    code: "ar-SA" },
+      { key: "Telugu",    code: "te-IN" },
+      { key: "Thanglish", code: "en-IN" },
+      { key: "Hindi",     code: "hi-IN" },
+      { key: "French",    code: "fr-FR" },
+      { key: "German",    code: "de-DE" },
+    ];
+
+    const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const SPEAK_SVG = `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+    const COPY_SVG = `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    const OK_SVG   = `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+    let selectedTone = "formal";
+
+    // Build language pills
+    const grid = document.getElementById("langGrid");
+    LANGUAGES.forEach(({ key }) => {
+      const pill = document.createElement("label");
+      pill.className = "lang-pill active";
+      pill.innerHTML = `
+        <input type="checkbox" value="${key}" checked />
+        <span class="pill-box">${CHECK_SVG}</span>
+        <span class="pill-name">${key}</span>`;
+      pill.addEventListener("click", () => {
+        const cb = pill.querySelector("input");
+        setTimeout(() => {
+          const on = cb.checked;
+          pill.classList.toggle("active", on);
+        }, 0);
+      });
+      grid.appendChild(pill);
+    });
+
+    function selectAll() {
+      document.querySelectorAll(".lang-pill").forEach(p => {
+        p.querySelector("input").checked = true;
+        p.classList.add("active");
+      });
+    }
+    function clearAll() {
+      document.querySelectorAll(".lang-pill").forEach(p => {
+        p.querySelector("input").checked = false;
+        p.classList.remove("active");
+      });
+    }
+
+    function setTone(btn) {
+      document.querySelectorAll(".tone-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedTone = btn.dataset.tone;
+    }
+
+    function updateCount() {
+      document.getElementById("charCount").textContent =
+        document.getElementById("inputText").value.length;
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("errorBox");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+    function hideError() {
+      document.getElementById("errorBox").style.display = "none";
+    }
+
+    async function doTranslate() {
+      hideError();
+      const text = document.getElementById("inputText").value.trim();
+      const langs = [...document.querySelectorAll(".lang-pill input:checked")].map(c => c.value);
+
+      if (!text)   { showError("Please enter some text."); return; }
+      if (!langs.length) { showError("Please select at least one language."); return; }
+
+      const btn     = document.getElementById("translateBtn");
+      const btnText = document.getElementById("btnText");
+      const spinner = document.getElementById("spinner");
+
+      btn.disabled = true;
+      btnText.style.display = "none";
+      spinner.style.display = "block";
+      document.getElementById("resultsWrap").style.display = "none";
+
+      try {
+        const res = await fetch("/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, tone: selectedTone }),
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || "Translation failed");
+        renderResults(await res.json(), langs);
+      } catch (e) {
+        showError(e.message);
+      } finally {
+        btn.disabled = false;
+        btnText.style.display = "inline";
+        spinner.style.display = "none";
+      }
+    }
+
+    function renderResults(data, langs) {
+      const langMap = Object.fromEntries(LANGUAGES.map(l => [l.key, l]));
+      document.getElementById("results").innerHTML = langs.map((lang, i) => `
+        <div class="result-card" style="animation-delay:${i * 0.05}s">
+          <div class="result-top">
+            <span class="result-lang-name">${lang}</span>
+            <div class="result-btns">
+              <button class="icon-btn" id="speak-${lang}" onclick="speakText('${lang}')" title="Speak">${SPEAK_SVG}</button>
+              <button class="icon-btn" id="copy-${lang}"  onclick="copyText('${lang}')"  title="Copy">${COPY_SVG}</button>
+            </div>
+          </div>
+          <div class="result-text" id="text-${lang}">${data[lang] || "—"}</div>
+        </div>`).join("");
+
+      const wrap = document.getElementById("resultsWrap");
+      wrap.style.display = "block";
+      wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function copyText(lang) {
+      navigator.clipboard.writeText(document.getElementById("text-" + lang).innerText).then(() => {
+        const btn = document.getElementById("copy-" + lang);
+        btn.classList.add("copied");
+        btn.innerHTML = OK_SVG;
+        setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = COPY_SVG; }, 1800);
+      });
+    }
+
+    // Voice
+    let voices = [];
+    function loadVoices() { voices = window.speechSynthesis.getVoices(); }
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    function getBestVoice(code) {
+      return voices.find(v => v.lang === code)
+          || voices.find(v => v.lang.startsWith(code.split("-")[0]))
+          || voices[0] || null;
+    }
+
+    function speakText(lang) {
+      const text = document.getElementById("text-" + lang)?.innerText;
+      if (!text || text === "—") return;
+      window.speechSynthesis.cancel();
+      const btn  = document.getElementById("speak-" + lang);
+      const code = LANGUAGES.find(l => l.key === lang)?.code || "en-US";
+      const utt  = new SpeechSynthesisUtterance(text);
+      const voice = getBestVoice(code);
+      if (voice) { utt.voice = voice; utt.lang = voice.lang; } else { utt.lang = code; }
+      utt.rate = 0.88; utt.volume = 1;
+      utt.onstart = () => btn.classList.add("speaking");
+      utt.onend   = () => btn.classList.remove("speaking");
+      utt.onerror = () => btn.classList.remove("speaking");
+      setTimeout(() => window.speechSynthesis.speak(utt), 100);
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.ctrlKey && e.key === "Enter") doTranslate();
+    });
+  </script>
+</body>
+</html>

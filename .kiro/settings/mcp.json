@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "text-orbit": {
+      "command": "python",
+      "args": ["mcp_server.py"],
+      "env": {
+        "GOOGLE_API_KEY": "AIzaSyAPKcHbknQsY9MniElQ9LaMpOKLgYT6KUg"
+      },
+      "disabled": false,
+      "autoApprove": ["translate"]
+    }
+  }
+}
